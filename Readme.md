@@ -102,8 +102,8 @@ Escuela/
 ### 1. Clonar el repositorio
 
 ```bash
-git clone https://github.com/tu-usuario/Escuela.git
-cd Escuela
+git clone https://github.com/maubmz/FullStack-Microservicios.git
+cd FullStack-Microservicios
 ```
 
 ### 2. Configurar las variables de entorno
@@ -116,7 +116,7 @@ cp .env.example .env
 Variables del archivo `.env`:
 
 ```env
-MYSQL_ROOT_PASSWORD=tu_contraseña_segura
+MYSQL_ROOT_PASSWORD=contraseña_segura
 MYSQL_DATABASE=client_product
 CONTAINER_NAME=bd-openfeign
 ```
