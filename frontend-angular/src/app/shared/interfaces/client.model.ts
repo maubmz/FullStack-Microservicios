@@ -1,4 +1,6 @@
-interface Client {
+import {Purchase} from './purchase.model';
+
+export interface Client {
   id: number,
   name: string,
   email: string,
