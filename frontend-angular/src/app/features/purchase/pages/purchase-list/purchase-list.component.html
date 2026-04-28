@@ -1,0 +1,10 @@
+<app-navbar/>
+
+@for(purchase of purchases; track purchase.id) {
+  <li>
+    {{ purchase.id }} - {{ purchase.client.name}} - {{ purchase.quantity }}
+  </li>
+}
+
+<p>Purchase list component</p>
+<a routerLink="">Return Home</a>

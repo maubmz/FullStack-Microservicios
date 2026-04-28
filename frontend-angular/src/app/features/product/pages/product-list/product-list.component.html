@@ -1,0 +1,7 @@
+<app-navbar></app-navbar>
+
+@for (product of products; track product.id){
+  <li>{{ product.id }} - {{ product.name }} - {{ product.price }} - {{ product.stock }}</li>
+}
+<p>Product list component</p>
+<a routerLink="">Return Home</a>

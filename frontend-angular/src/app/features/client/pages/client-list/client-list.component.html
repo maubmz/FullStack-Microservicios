@@ -1,12 +1,8 @@
-<h1>Hello you are in client list</h1>
-
-
+<app-navbar></app-navbar>
 <div>
   <ul>
     <li *ngFor="let client of clients">{{ client.id }} - {{ client.name }} - {{ client.email }}</li>
   </ul>
 </div>
-
-<ul>
-  <li>Hello</li>
-</ul>
+<p>Client list component</p>
+<a routerLink="">Return Home</a>

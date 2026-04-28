@@ -8,7 +8,7 @@ import { Client } from '../../../shared/interfaces/client.model';
 })
 export class ClientService {
 
-  private apiUrl = 'http://localhost:8081/client';
+  private apiUrl : string= 'http://localhost:8081/client';
 
   constructor(private http: HttpClient) {}
 

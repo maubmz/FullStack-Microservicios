@@ -2,11 +2,15 @@ import { Component, OnInit } from '@angular/core';
 import { ClientService } from '../../services/client.service';
 import { CommonModule } from '@angular/common';
 import { Client } from '../../../../shared/interfaces/client.model';
+import { NavbarComponent } from '../../../../shared/components/navbar/navbar.component';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-client-list',
   imports: [
-    CommonModule
+    CommonModule,
+    NavbarComponent,
+    RouterLink
   ],
   templateUrl: './client-list.component.html',
   styleUrl: './client-list.component.css'
@@ -18,7 +22,7 @@ export class ClientListComponent implements OnInit{
 
   ngOnInit() {
     this.clientService.getAllClient().subscribe({
-      next: (client) => (this.clients=client)
+      next: (clients: Client[]): Client[] => (this.clients=clients)
     })
   }
 
