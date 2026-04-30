@@ -17,6 +17,7 @@ import {ProductService} from '../../services/product.service';
 })
 export class ProductListComponent implements OnInit{
   products: Product[] = [];
+  headersTable: string[] = ["Id", "Nombre", "Precio", "Stock"];
 
   constructor(private productService: ProductService) {}
 

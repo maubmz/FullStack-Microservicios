@@ -8,14 +8,15 @@ import {Purchase} from '../../../../shared/interfaces/purchase.model';
   selector: 'app-purchase-list',
   imports: [
     NavbarComponent,
-    RouterLink
+    RouterLink,
   ],
   templateUrl: './purchase-list.component.html',
   styleUrl: './purchase-list.component.css'
 })
 export class PurchaseListComponent implements OnInit {
-
   purchases: Purchase[] = [];
+  headers: string[] = ["Id", "Client", "Productos", "Cantidad"];
+
   constructor(private purchaseService: PurchaseService) {}
 
   ngOnInit() {

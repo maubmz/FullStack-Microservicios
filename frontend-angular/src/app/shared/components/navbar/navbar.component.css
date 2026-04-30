@@ -2,9 +2,36 @@ nav {
   display: flex;
   justify-content: center; /* centra horizontalmente */
   align-items: center; /* centra verticalmente*/
-  gap: 20px;
+  gap: 24px;
+
+  padding: 16px 24px;
+  background-color: #1e293b;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+
+  width: fit-content;
+  margin: 20px auto;
 }
 
-a {
-  margin: 10px;
+nav a {
+  text-decoration: none;
+  color: white;
+  font-weight: 500;
+  font-size: 16px;
+
+  padding: 10px 18px;
+  border-radius: 8px;
+
+  transition:
+    background-color 0.25s ease,
+    transform 0.2s ease;
+}
+
+nav a:hover {
+  background-color: #334155;
+  transform: translateY(-2px);
+}
+
+nav a:active {
+  transform: translateY(0);
 }

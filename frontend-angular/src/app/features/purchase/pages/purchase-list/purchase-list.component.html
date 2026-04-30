@@ -1,10 +1,37 @@
-<app-navbar/>
+<app-navbar></app-navbar>
 
-@for(purchase of purchases; track purchase.id) {
-  <li>
-    {{ purchase.id }} - {{ purchase.client.name}} - {{ purchase.quantity }}
-  </li>
-}
+<h1 class="page-title">Lista de Compras</h1>
 
-<p>Purchase list component</p>
-<a routerLink="">Return Home</a>
+<table class="app-table">
+  <thead>
+  <tr>
+    @for (header of headers; track header) {
+      <th>{{ header }}</th>
+    }
+  </tr>
+  </thead>
+
+  <tbody>
+    @for (purchase of purchases; track purchase.id) {
+      <tr>
+        <td>{{ purchase.id }}</td>
+
+        <td>{{ purchase.client.name }}</td>
+
+        <td>
+          <div class="products-list">
+            @for (product of purchase.products; track product.id) {
+              <span class="product-item">
+                {{ product.name }}
+              </span>
+            }
+          </div>
+        </td>
+
+        <td>{{ purchase.quantity }}</td>
+      </tr>
+    }
+  </tbody>
+</table>
+
+<a class="back-link" routerLink="">Return Home</a>

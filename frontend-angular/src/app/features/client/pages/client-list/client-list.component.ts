@@ -17,6 +17,7 @@ import { RouterLink } from '@angular/router';
 })
 export class ClientListComponent implements OnInit{
   clients: Client[] = [];
+  headersTable: String[] = ["Id", "Nombre", "Correo", "Telefono", "Numero de compras"];
 
   constructor(private clientService: ClientService ) {}
 

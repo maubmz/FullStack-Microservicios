@@ -1,5 +1,8 @@
 <nav>
   @for (pestana of pestanas; track pestana.route) {
-    <a [routerLink]="pestana.route">{{ pestana.label }}</a>
+    <a
+      [routerLink]="pestana.route"
+      routerLinkActive="active-link">
+      {{ pestana.label }}</a>
   }
 </nav>

@@ -1,8 +1,25 @@
 <app-navbar></app-navbar>
-<div>
-  <ul>
-    <li *ngFor="let client of clients">{{ client.id }} - {{ client.name }} - {{ client.email }}</li>
-  </ul>
-</div>
-<p>Client list component</p>
-<a routerLink="">Return Home</a>
+
+<h1 class="page-title">Lista de Clientes</h1>
+
+<table class="app-table">
+  <thead>
+  <tr>
+    @for(head of headersTable; track head) {
+      <th>{{ head }}</th>
+    }
+  </tr>
+  </thead>
+
+  <tbody>
+  <tr *ngFor="let client of clients">
+    <td>{{ client.id }}</td>
+    <td>{{ client.name }}</td>
+    <td>{{ client.email }}</td>
+    <td>{{ client.phoneNumber }}</td>
+    <td>{{ client.purchases.length }}</td>
+  </tr>
+  </tbody>
+</table>
+
+<a class="back-link" routerLink="">Return Home</a>
