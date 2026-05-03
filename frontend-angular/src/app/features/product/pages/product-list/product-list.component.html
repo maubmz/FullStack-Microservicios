@@ -1,26 +1,5 @@
-<app-navbar></app-navbar>
-
-<h1 class="page-title">Lista de Productos</h1>
-
-<table class="app-table">
-  <thead>
-    <tr>
-      @for(head of headersTable; track head) {
-        <th>{{ head }}</th>
-      }
-    </tr>
-  </thead>
-  <tbody>
-    @for(product of products; track product) {
-      <tr>
-        <td>{{ product.id }}</td>
-        <td>{{ product.name }}</td>
-        <td>{{ product.price }}</td>
-        <td>{{ product.stock }}</td>
-      </tr>
-
-    }
-  </tbody>
-</table>
-
-<a class="back-link" routerLink="">Return Home</a>
+<app-table
+  [data]="products"
+  [columns]="columnsProducts"
+  [title]="title"
+>

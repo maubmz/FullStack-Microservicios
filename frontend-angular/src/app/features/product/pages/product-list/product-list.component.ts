@@ -1,23 +1,27 @@
 import {Component, OnInit} from '@angular/core';
-import {NavbarComponent} from '../../../../shared/components/navbar/navbar.component';
-import {RouterLink} from '@angular/router';
-import {CommonModule} from '@angular/common';
 import {Product} from '../../../../shared/interfaces/product.model';
 import {ProductService} from '../../services/product.service';
+import { TableColumn } from '../../../../shared/interfaces/tableColumn.model';
+import { TableComponent } from '../../../../shared/components/table/table.component';
 
 @Component({
   selector: 'app-product-list',
   imports: [
-    NavbarComponent,
-    RouterLink,
-    CommonModule
+    TableComponent
   ],
   templateUrl: './product-list.component.html',
   styleUrl: './product-list.component.css'
 })
 export class ProductListComponent implements OnInit{
   products: Product[] = [];
-  headersTable: string[] = ["Id", "Nombre", "Precio", "Stock"];
+  columnsProducts: TableColumn<Product>[] = [
+    {key: 'id', label: 'Id'},
+    {key: 'name', label:'Nombre Producto'},
+    {key: 'price', label:'Precio Product'},
+    {key: 'stock', label: 'Stock'},
+    {key: 'edit', label:'Editar'}
+  ]
+  title: string = "Listado de Productos";
 
   constructor(private productService: ProductService) {}
 
