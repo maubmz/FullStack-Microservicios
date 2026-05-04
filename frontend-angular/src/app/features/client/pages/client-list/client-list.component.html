@@ -1,5 +1,24 @@
-<app-table
-  [data]="clients"
-  [columns]="columnsClients"
-  [title]="title"
-/>
+<table class="entity-table">
+  <thead>
+    <tr>
+      @for (header of listHeaders; track header) {
+      <th>{{ header }}</th>
+    }
+    </tr>
+  </thead>
+
+  <tbody>
+    @for (client of clients; track client.id) {
+      <tr>
+        <td>{{ client.id }}</td>
+        <td>{{ client.name }}</td>
+        <td>{{ client.email }}</td>
+        <td>{{ client.phoneNumber }}</td>
+        <td>{{ client.purchases.length }}</td>
+        <td>
+          <button [routerLink]="['/clients/edit', client.id]">Editar</button>
+        </td>
+      </tr>
+    }
+  </tbody>
+</table>

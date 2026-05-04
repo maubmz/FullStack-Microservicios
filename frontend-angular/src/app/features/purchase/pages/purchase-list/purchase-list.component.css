@@ -1,0 +1,71 @@
+.entity-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 24px;
+  background: #ffffff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  font-family: Arial, sans-serif;
+}
+
+/* Header */
+.entity-table thead {
+  background-color: #1e293b;
+  color: white;
+}
+
+.entity-table th {
+  padding: 14px 18px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 0.3px;
+}
+
+/* Body */
+.entity-table td {
+  padding: 14px 18px;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 14px;
+  color: #374151;
+  vertical-align: top;
+}
+
+/* Hover Row */
+.entity-table tbody tr:hover {
+  background-color: #f8fafc;
+  transition: background-color 0.2s ease;
+}
+
+/* Last Row */
+.entity-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Buttons */
+.entity-table button {
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.entity-table button:hover {
+  background-color: #1d4ed8;
+  transform: translateY(-1px);
+}
+
+/* Multi-line products in Purchase table */
+.entity-table td div {
+  margin-bottom: 4px;
+}
+
+.entity-table td div:last-child {
+  margin-bottom: 0;
+}

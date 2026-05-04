@@ -20,9 +20,9 @@ interface NavItem {
 export class NavbarComponent {
   pestanas: NavItem[] = [
     {label: 'Home', route: ''},
-    {label: 'client', route: '/client'},
-    {label: 'Product', route: '/product'},
-    {label: 'Purchase', route: '/purchase'}
+    {label: 'client', route: '/clients'},
+    {label: 'Product', route: '/products'},
+    {label: 'Purchase', route: '/purchases'}
 
   ];
 
