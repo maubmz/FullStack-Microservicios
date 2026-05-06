@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { PurchaseEditComponent } from './purchase-edit.component';
+import { ProductFormComponent } from './product-form.component';
 
-describe('PurchaseEditComponent', () => {
-  let component: PurchaseEditComponent;
-  let fixture: ComponentFixture<PurchaseEditComponent>;
+describe('ProductFormComponent', () => {
+  let component: ProductFormComponent;
+  let fixture: ComponentFixture<ProductFormComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [PurchaseEditComponent]
+      imports: [ProductFormComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(PurchaseEditComponent);
+    fixture = TestBed.createComponent(ProductFormComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

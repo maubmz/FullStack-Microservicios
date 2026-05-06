@@ -1,0 +1,21 @@
+<form>
+  <label>Nombre del cliente: </label>
+  <input [value]="client.name"/>
+  <br>
+
+  <label>Correo electronico: </label>
+  <input [value]="client.email">
+  <br>
+
+  <label>Numero de Telefono: </label>
+  <input [value]="client.phoneNumber">
+  <br>
+
+  <label>Compras</label>
+  <select>
+    @for (purchase of client.purchases; track purchase.id) {
+      <option>{{ purchase.id }}</option>
+    }
+  </select>
+
+</form>

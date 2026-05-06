@@ -3,9 +3,9 @@ import {ClientListComponent} from './features/client/pages/client-list/client-li
 import {HomePageComponent} from './features/home/pages/home-page/home-page.component';
 import {ProductListComponent} from './features/product/pages/product-list/product-list.component';
 import {PurchaseListComponent} from './features/purchase/pages/purchase-list/purchase-list.component';
-import {ClientEditComponent} from './features/client/pages/client-edit/client-edit.component';
-import {ProductEditComponent} from './features/product/pages/product-edit/product-edit.component';
-import {PurchaseEditComponent} from './features/purchase/pages/purchase-edit/purchase-edit.component';
+import {ProductFormComponent} from './features/product/pages/product-form/product-form.component';
+import {PurchaseFormComponent} from './features/purchase/pages/purchase-form/purchase-form.component';
+import {ClientFormComponent} from './features/client/pages/client-form/client-form.component';
 
 export const routes: Routes = [
   {
@@ -18,7 +18,7 @@ export const routes: Routes = [
   },
   {
     path: 'products',
-    component: ProductListComponent,
+    component: ProductListComponent
   },
   {
     path: 'purchases',
@@ -26,18 +26,18 @@ export const routes: Routes = [
   },
   {
     path: 'clients/edit/:id',
-    component: ClientEditComponent
+    component: ClientFormComponent
   },
   {
     path: 'products/edit/:id',
-    component: ProductEditComponent
+    component: ProductFormComponent
   },
   {
     path: 'purchases/edit/:id',
-    component: PurchaseEditComponent
+    component: PurchaseFormComponent
   },
   {
     path: '**',
-    component: HomePageComponent,
+    component: HomePageComponent
   }
 ];

@@ -1,6 +1,5 @@
 package com.java.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
 import java.util.List;
@@ -11,6 +10,5 @@ public class Client {
     private String name;
     private String email;
     private String phoneNumber;
-    @JsonIgnoreProperties("client")
     private List<Purchase> purchases;
 }
