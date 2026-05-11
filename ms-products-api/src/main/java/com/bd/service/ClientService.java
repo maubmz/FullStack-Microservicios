@@ -1,64 +1,97 @@
 package com.bd.service;
 
+import com.bd.dto.ClientDTO;
+import com.bd.dto.PurchaseDTO;
 import com.bd.model.Client;
 import com.bd.model.Purchase;
 import com.bd.repository.ClientRepository;
-import com.bd.repository.PurchasesRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 public class ClientService {
     private final ClientRepository clientRepository;
-    private final PurchasesRepository purchasesRepository;
 
-    public ClientService(ClientRepository clientRepository, PurchasesRepository purchasesRepository) {
+    public ClientService(ClientRepository clientRepository) {
         this.clientRepository = clientRepository;
-        this.purchasesRepository = purchasesRepository;
     }
 
-    public Client saveClient(Client client) {
-        Set<Purchase> purchases = client.getPurchases().stream()
-                .map(p -> purchasesRepository.findByIdPurchase(p.getId())
-                                .orElseThrow(() -> new RuntimeException("No se encontro la compra " + p.getId())))
-                .collect(Collectors.toSet());
-        client.setPurchases(purchases);
-        return clientRepository.save(client);
+    @Transactional
+    public ClientDTO saveClient(ClientDTO clientDto) {
+        Client client = new Client();
+        client.setName(clientDto.getName());
+        client.setEmail(clientDto.getEmail());
+        client.setPhoneNumber(clientDto.getPhone());
+
+        Client saved = clientRepository.save(client);
+        return convertClientToDto(saved);
     }
 
-    public List<Client> findAllClient() {
-        return clientRepository.findAllWithPurchases();
+    public List<ClientDTO> findAllClient() {
+        List<Client> clients = clientRepository.findAll();
+        List<ClientDTO> clientDTOs = new ArrayList<>();
+        for (Client client : clients) {
+            clientDTOs.add(convertClientToDto(client));
+        }
+        return clientDTOs;
     }
 
-    public Client findClientById(Integer id) {
-        return clientRepository.findByIdWithPurchases(id).orElseThrow();
+    public ClientDTO findClientById(Integer id) {
+        Client client = clientRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Cliente no encontrado con id: " + id));
+        return convertClientToDto(client);
     }
 
-    public Client updateClientById(Integer id, Client client) {
-        Client oldClient = clientRepository.findByIdWithPurchases(id).orElseThrow(() -> new RuntimeException("No se encontro el client con id: " + id));
+    public ClientDTO updateClientById(Integer id, ClientDTO clientDto) {
+        Client client = clientRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Cliente no encontrado con id: " + id));
+        client.setName(clientDto.getName());
+        client.setEmail(clientDto.getEmail());
+        client.setPhoneNumber(clientDto.getPhone());
 
-        Set<Purchase> purchases = client.getPurchases().stream()
-                .map(p -> purchasesRepository.findById(p.getId())
-                        .orElseThrow(() -> new RuntimeException("No se encontro ninguna compra " + p.getId())))
-                .collect(Collectors.toSet());
-
-        oldClient.setName(client.getName());
-        oldClient.setEmail(client.getEmail());
-        oldClient.setPhoneNumber(client.getPhoneNumber());
-        oldClient.setPurchases(purchases);
-
-        return clientRepository.save(oldClient);
+        return convertClientToDto(clientRepository.save(client));
     }
 
-    public Client deleteClientById(Integer id) {
-        Client client = clientRepository.findById(id).orElseThrow();
+    public ClientDTO deleteClientById(Integer id) {
+        Client client = clientRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Cliente no encontrado con id: " + id));
+        ClientDTO clientDTO = convertClientToDto(client);
         clientRepository.deleteById(id);
-        return client;
+        return clientDTO;
     }
 
+    public ClientDTO convertClientToDto(Client client) {
+        ClientDTO clientDTO = new ClientDTO();
+        clientDTO.setIdClient(client.getId());
+        clientDTO.setName(client.getName());
+        clientDTO.setEmail(client.getEmail());
+        clientDTO.setPhone(client.getPhoneNumber());
 
+        if (client.getPurchases() != null) {
+            List<PurchaseDTO> purchaseDTOS = client.getPurchases().stream()
+                    .map(this::convertPurchaseToDto)
+                    .toList();
+            clientDTO.setPurchases(purchaseDTOS);
+        } else {
+            clientDTO.setPurchases(new ArrayList<>());
+        }
+        return clientDTO;
+    }
+
+    public PurchaseDTO convertPurchaseToDto(Purchase purchase) {
+        PurchaseDTO purchaseDTO = new PurchaseDTO();
+        purchaseDTO.setIdPurchase(purchase.getId());
+        purchaseDTO.setQuantity(purchase.getQuantity());
+        purchaseDTO.setProducts(purchase.getProducts());
+
+        if (purchase.getClient() != null) {
+            purchaseDTO.setIdClient(purchase.getClient().getId());
+            purchaseDTO.setClientName(purchase.getClient().getName());
+        }
+        return purchaseDTO;
+    }
 
 }

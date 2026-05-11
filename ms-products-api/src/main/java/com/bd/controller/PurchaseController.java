@@ -1,6 +1,6 @@
 package com.bd.controller;
 
-import com.bd.model.Purchase;
+import com.bd.dto.PurchaseDTO;
 import com.bd.service.PurchaseService;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,27 +17,27 @@ public class PurchaseController {
     }
 
     @GetMapping("/compras")
-    public List<Purchase> getAllPurchases() {
+    public List<PurchaseDTO> getAllPurchases() {
         return purchaseService.findAll();
     }
 
     @GetMapping("/compras/{id}")
-    public Purchase findPurchaseById(@PathVariable("id") Integer id) {
+    public PurchaseDTO findPurchaseById(@PathVariable("id") Integer id) {
         return purchaseService.findPurchaseById(id);
     }
 
     @PostMapping("/compras")
-    public Purchase createPurchase(@RequestBody Purchase purchase) {
+    public PurchaseDTO createPurchase(@RequestBody PurchaseDTO purchase) {
         return purchaseService.savePurchase(purchase);
     }
 
     @PutMapping("/compras/{id}")
-    public Purchase updatePurchase(@PathVariable("id") Integer id, @RequestBody Purchase purchase) {
+    public PurchaseDTO updatePurchase(@PathVariable("id") Integer id, @RequestBody PurchaseDTO purchase) {
         return purchaseService.updatePurchaseById(id, purchase);
     }
 
     @DeleteMapping("/compras/{id}")
-    public Purchase deletePurchase(@PathVariable("id") Integer id) {
+    public PurchaseDTO deletePurchase(@PathVariable("id") Integer id) {
         return purchaseService.deletePurchaseById(id);
     }
 

@@ -1,74 +1,112 @@
 package com.bd.service;
 
+import com.bd.dto.PurchaseDTO;
 import com.bd.model.Client;
 import com.bd.model.Product;
 import com.bd.model.Purchase;
 import com.bd.repository.ClientRepository;
-import com.bd.repository.ProductRepository;
-import com.bd.repository.PurchasesRepository;
+import com.bd.repository.PurchaseRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class PurchaseService {
-    private final PurchasesRepository purchasesRepository;
-    private final ProductRepository productRepository;
+    private final PurchaseRepository purchaseRepository;
     private final ClientRepository clientRepository;
+    private final ProductService productService;
+    private static final String ERROR_PURCHASE = "No existe la compra con el id: ";
 
-    public PurchaseService(PurchasesRepository purchasesRepository, ProductRepository productRepository, ClientRepository clientRepository) {
-        this.purchasesRepository = purchasesRepository;
-        this.productRepository = productRepository;
+    public PurchaseService(PurchaseRepository purchaseRepository,
+                           ClientRepository clientRepository,
+                           ProductService productService) {
+        this.purchaseRepository = purchaseRepository;
         this.clientRepository = clientRepository;
-    }
-
-    public Purchase savePurchase(Purchase purchase) {
-        purchase.setClient(clientRepository.findById(purchase.getClient().getId()).orElseThrow());
-
-        List<Product> products = purchase.getProducts().stream()
-                .map(p -> productRepository.findById(p.getId())
-                        .orElseThrow(() -> new RuntimeException("No se encontro el producto " + p.getId()))
-                ).toList();
-
-        purchase.setProducts(products);
-        purchase.setQuantity(purchase.getProducts().size());
-
-        return purchasesRepository.save(purchase);
+        this.productService = productService;
     }
 
     @Transactional
-    public Purchase updatePurchaseById(Integer id, Purchase purchase) {
-        Purchase oldPurchase = purchasesRepository.findById(id).orElseThrow();
+    public PurchaseDTO savePurchase(PurchaseDTO purchaseDTO) {
+        Purchase purchase = new Purchase();
+        Client client = clientRepository.findById(purchaseDTO.getIdClient())
+                .orElseThrow(() -> new RuntimeException("No existe el cliente con el ID: " + purchaseDTO.getIdClient()));
+        List<Product> productList = new ArrayList<>();
 
-        Client client = clientRepository.findById(purchase.getClient().getId()).orElseThrow();
+        for (Product product: purchaseDTO.getProducts()) {
+            Product pFind = productService.findProductById(product.getId());
+            productService.decreaseStock(pFind);
+            productList.add(pFind);
+        }
 
-        List<Product> products = purchase.getProducts().stream()
-                .map(p -> productRepository.findById(p.getId())
-                        .orElseThrow(() -> new RuntimeException("No se encontro el producto " + p.getId()))
-                ).toList();
-        purchase.setProducts(products);
-
-        oldPurchase.setClient(client);
-        oldPurchase.getProducts().clear();
-        oldPurchase.getProducts().addAll(products);
-        oldPurchase.setQuantity(purchase.getProducts().size());
-
-        return purchasesRepository.save(oldPurchase);
+        purchase.setClient(client);
+        purchase.setProducts(productList);
+        purchase.setQuantity(productList.size());
+        Purchase saved = purchaseRepository.save(purchase);
+        return convertPurchaseToDto(saved);
     }
 
-    public Purchase findPurchaseById(Integer id) {
-        return purchasesRepository.findByIdPurchase(id).orElseThrow();
+    public PurchaseDTO findPurchaseById(Integer id) {
+        Purchase purchase = purchaseRepository.findByIdPurchase(id)
+                .orElseThrow(() -> new RuntimeException(ERROR_PURCHASE + id));
+        return convertPurchaseToDto(purchase);
     }
 
-    public List<Purchase> findAll() {
-        return purchasesRepository.findAllPurchases();
+    public List<PurchaseDTO> findAll() {
+        List<Purchase> purchases = purchaseRepository.findAllPurchases();
+        List<PurchaseDTO> purchaseDTOS = new ArrayList<>();
+        for (Purchase purchase: purchases) {
+            PurchaseDTO pdto = convertPurchaseToDto(purchase);
+            purchaseDTOS.add(pdto);
+        }
+        return purchaseDTOS;
     }
 
-    public Purchase deletePurchaseById(Integer id) {
-        Purchase purchase = purchasesRepository.findByIdPurchase(id).orElseThrow();
-        purchasesRepository.deleteById(id);
-        return purchase;
+    @Transactional
+    public PurchaseDTO updatePurchaseById(Integer id, PurchaseDTO purchaseDTO) {
+        Purchase purchase = purchaseRepository.findByIdPurchase(id)
+                .orElseThrow(() -> new RuntimeException(ERROR_PURCHASE + id));
+        Client client = clientRepository.findById(purchaseDTO.getIdClient())
+                .orElseThrow(() -> new RuntimeException("No existe el cliente con el Id: " + purchaseDTO.getIdClient()));
+        List<Product> productList = new ArrayList<>();
+
+        for (Product oldProduct: purchase.getProducts()) {
+            productService.increaseStock(oldProduct);
+        }
+
+        for (Product product: purchaseDTO.getProducts()) {
+            Product pFind = productService.findProductById(product.getId());
+            productService.decreaseStock(pFind);
+            productList.add(pFind);
+        }
+
+        purchase.getProducts().clear();
+        purchase.setClient(client);
+        purchase.setProducts(productList);
+        purchase.setQuantity(productList.size());
+        return convertPurchaseToDto(purchaseRepository.save(purchase));
+    }
+
+    @Transactional
+    public PurchaseDTO deletePurchaseById(Integer id) {
+        Purchase purchase = purchaseRepository.findByIdPurchase(id)
+                .orElseThrow(() -> new RuntimeException("No existe el purchase con el ID: " + id));
+        for (Product product: purchase.getProducts()) {
+            productService.increaseStock(product);
+        }
+        purchaseRepository.delete(purchase);
+        return convertPurchaseToDto(purchase);
+    }
+
+    public PurchaseDTO convertPurchaseToDto(Purchase purchase) {
+        PurchaseDTO purchaseDto = new PurchaseDTO();
+        purchaseDto.setIdPurchase(purchase.getId());
+        purchaseDto.setIdClient(purchase.getClient().getId());
+        purchaseDto.setClientName(purchase.getClient().getName());
+        purchaseDto.setProducts(purchase.getProducts());
+        purchaseDto.setQuantity(purchase.getQuantity());
+        return purchaseDto;
     }
 
 }

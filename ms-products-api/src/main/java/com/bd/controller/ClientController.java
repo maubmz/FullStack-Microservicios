@@ -1,7 +1,9 @@
 package com.bd.controller;
 
+import com.bd.dto.ClientDTO;
 import com.bd.model.Client;
 import com.bd.service.ClientService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,29 +20,31 @@ public class ClientController {
     }
 
     @PostMapping("/clientes")
-    public ResponseEntity<Client> createClient(@RequestBody Client client) {
-        clientService.saveClient(client);
-        return ResponseEntity.ok(client);
+    public ResponseEntity<ClientDTO> createClient(@RequestBody ClientDTO client) {
+        ClientDTO savedClient = clientService.saveClient(client);
+        return new ResponseEntity<>(savedClient, HttpStatus.CREATED);
     }
 
     @GetMapping("/clientes")
-    public ResponseEntity<List<Client>> findAllClients() {
+    public ResponseEntity<List<ClientDTO>> findAllClients() {
         return ResponseEntity.ok(clientService.findAllClient());
     }
 
     @GetMapping("/clientes/{id}")
-    public ResponseEntity<Client> findClientById(@PathVariable Integer id) {
+    public ResponseEntity<ClientDTO> findClientById(@PathVariable Integer id) {
         return ResponseEntity.ok(clientService.findClientById(id));
     }
 
     @PutMapping("/clientes/{id}")
-    public ResponseEntity<Client> updateClientById(@PathVariable("id") Integer id, @RequestBody Client client) {
-        return ResponseEntity.ok(clientService.updateClientById(id, client));
+    public ResponseEntity<ClientDTO> updateClientById(@PathVariable("id") Integer id, @RequestBody ClientDTO client) {
+        ClientDTO response = clientService.updateClientById(id, client);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @DeleteMapping("/clientes/{id}")
-    public ResponseEntity<Client> deleteClientById(@PathVariable Integer id) {
-        return ResponseEntity.ok(clientService.deleteClientById(id));
+    public ResponseEntity<ClientDTO> deleteClientById(@PathVariable Integer id) {
+        ClientDTO response = clientService.deleteClientById(id);
+        return ResponseEntity.ok(response);
     }
 
 }
