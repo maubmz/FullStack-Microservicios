@@ -13,7 +13,7 @@ import java.util.Optional;
 @Repository
 public interface PurchaseRepository extends JpaRepository<Purchase, Integer> {
 
-    @Query("SELECT DISTINCT p FROM Purchase p JOIN FETCH p.products JOIN FETCH p.client")
+    @Query("SELECT DISTINCT p FROM Purchase p JOIN FETCH p.products JOIN FETCH p.client ORDER BY p.id ASC")
     List<Purchase> findAllPurchases();
 
     @Query("SELECT p FROM Purchase p JOIN FETCH p.products JOIN FETCH p.client WHERE p.id = :id")

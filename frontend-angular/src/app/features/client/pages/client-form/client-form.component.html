@@ -8,13 +8,13 @@
   <br>
 
   <label>Numero de Telefono: </label>
-  <input [value]="client.phoneNumber">
+  <input [value]="client.phone">
   <br>
 
   <label>Compras</label>
   <select>
-    @for (purchase of client.purchases; track purchase.id) {
-      <option>{{ purchase.id }}</option>
+    @for (purchase of client.purchases; track purchase.idPurchase) {
+      <option>{{ purchase.idPurchase }}</option>
     }
   </select>
 

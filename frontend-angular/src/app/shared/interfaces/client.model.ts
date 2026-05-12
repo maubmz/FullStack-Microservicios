@@ -1,9 +1,9 @@
 import {Purchase} from './purchase.model';
 
 export interface Client {
-  id: number,
+  idClient: number,
   name: string,
   email: string,
-  phoneNumber: string,
+  phone: string,
   purchases: Purchase[]
 }

@@ -7,10 +7,10 @@
     </tr>
   </thead>
   <tbody>
-    @for(purchase of purchases; track purchase.id) {
+    @for(purchase of purchases; track purchase.idPurchase) {
       <tr>
-        <td>{{ purchase.id }}</td>
-        <td>{{ purchase.client.name }}</td>
+        <td>{{ purchase.idPurchase }}</td>
+        <td>{{ purchase.clientName }}</td>
         <td>
           @for (product of purchase.products; track product.id) {
             <div>{{ product.name }}</div>
@@ -18,7 +18,7 @@
         </td>
         <td>{{ purchase.quantity }}</td>
         <td>
-          <button [routerLink]="['/purchases/edit', purchase.id]">Editar</button>
+          <button [routerLink]="['/purchases/edit', purchase.idPurchase]">Editar</button>
         </td>
       </tr>
     }

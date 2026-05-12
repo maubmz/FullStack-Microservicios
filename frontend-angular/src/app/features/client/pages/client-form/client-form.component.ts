@@ -15,10 +15,10 @@ import {CommonModule} from '@angular/common';
 export class ClientFormComponent implements OnInit {
   userId: string | null= '';
   client: Client = {
-    id: 0,
+    idClient: 0,
     name: '',
     email: '',
-    phoneNumber: '',
+    phone: '',
     purchases: []
   };
 
