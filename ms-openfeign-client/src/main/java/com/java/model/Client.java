@@ -6,9 +6,9 @@ import java.util.List;
 
 @Data
 public class Client {
-    private Integer id;
+    private Integer idClient;
     private String name;
     private String email;
-    private String phoneNumber;
+    private String phone;
     private List<Purchase> purchases;
 }

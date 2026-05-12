@@ -31,7 +31,7 @@ public class ClientService {
     }
 
     public List<ClientDTO> findAllClient() {
-        List<Client> clients = clientRepository.findAll();
+        List<Client> clients = clientRepository.findAllWithPurchases();
         List<ClientDTO> clientDTOs = new ArrayList<>();
         for (Client client : clients) {
             clientDTOs.add(convertClientToDto(client));
@@ -40,7 +40,7 @@ public class ClientService {
     }
 
     public ClientDTO findClientById(Integer id) {
-        Client client = clientRepository.findById(id)
+        Client client = clientRepository.findByIdWithPurchases(id)
                 .orElseThrow(() -> new RuntimeException("Cliente no encontrado con id: " + id));
         return convertClientToDto(client);
     }

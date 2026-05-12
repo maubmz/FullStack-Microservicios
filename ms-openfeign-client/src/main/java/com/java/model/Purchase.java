@@ -6,8 +6,9 @@ import java.util.List;
 
 @Data
 public class Purchase {
-    private Integer id;
-    private Client client;
+    private Integer idPurchase;
+    private Integer idClient;
+    private String clientName;
     private List<Product> products;
     private int quantity;
 }
