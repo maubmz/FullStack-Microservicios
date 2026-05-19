@@ -1,1 +1,17 @@
-<p>product-form works!</p>
+<form (ngSubmit)="saveProduct()">
+  <label for="name">Nombre del producto: </label>
+  <input type="text" id="name" [(ngModel)]="product.name" name="name"/>
+  <br>
+
+  <label for="price">Precio: </label>
+  <input type="text" id="price" [(ngModel)]="product.price" name="price"/>
+  <br>
+
+  <label for="stock">Stock del producto: </label>
+  <input type="text" id="stock" [(ngModel)]="product.stock" name="stock"/>
+  <br>
+
+  <button type="submit">Guardar</button>
+  <button type="button" routerLink="/products">Regresar</button>
+
+</form>

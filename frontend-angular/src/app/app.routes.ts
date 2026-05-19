@@ -37,6 +37,18 @@ export const routes: Routes = [
     component: PurchaseFormComponent
   },
   {
+    path: 'clients/new',
+    component: ClientFormComponent
+  },
+  {
+    path: 'purchases/new',
+    component: PurchaseFormComponent
+  },
+  {
+    path: 'products/new',
+    component: ProductFormComponent
+  },
+  {
     path: '**',
     component: HomePageComponent
   }

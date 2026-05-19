@@ -1,43 +1,60 @@
 import {Component, OnInit} from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
+import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import {Client} from '../../../../shared/interfaces/client.model';
 import {ClientService} from '../../services/client.service';
 import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
 
 @Component({
   selector: 'app-client-form',
   imports: [
-    CommonModule
+    CommonModule,
+    RouterLink,
+    FormsModule
   ],
   templateUrl: './client-form.component.html',
   styleUrl: './client-form.component.css'
 })
 export class ClientFormComponent implements OnInit {
-  userId: string | null= '';
   client: Client = {
-    idClient: 0,
     name: '',
     email: '',
     phone: '',
     purchases: []
   };
 
-  constructor(private route: ActivatedRoute, private clientService: ClientService) {}
+  constructor(private route: ActivatedRoute,
+              private clientService: ClientService,
+              private router: Router,
+
+  ) {}
 
   ngOnInit() {
-    this.userId = this.route.snapshot.paramMap.get('id');
-    if (this.userId) {
-      this.getInfoClient(+this.userId);
+    const userId: string | null = this.route.snapshot.paramMap.get('id');
+    if (userId) {
+      this.client.idClient = +userId;
+      this.getInfoClient(this.client.idClient);
     }
   }
 
   getInfoClient(id: number): void {
-    if (this.userId) {
+    if (this.client.idClient) {
       this.clientService.getClientById(id).subscribe(client => {
         this.client = client;
       });
     }
   };
 
+  saveClient(): void {
+    if(this.client.idClient) {
+      console.log("Actualizacion de cliente");
+      this.clientService.putClient(this.client.idClient, this.client)
+        .subscribe(() => this.router.navigate(['clients']));
+    } else {
+      console.log("Creacion de cliente");
+      this.clientService.postClient(this.client)
+        .subscribe(() => this.router.navigate(['clients']));
+    }
+  }
 
 }

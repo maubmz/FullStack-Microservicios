@@ -22,7 +22,9 @@ export class PurchaseListComponent implements OnInit {
 
   ngOnInit() {
     this.purchaseService.getAllPurchases().subscribe({
-      next: (purchases: Purchase[]): Purchase[] => (this.purchases=purchases)
+      next: (purchases: Purchase[]) => {
+        this.purchases=purchases
+      }
     })
   }
 

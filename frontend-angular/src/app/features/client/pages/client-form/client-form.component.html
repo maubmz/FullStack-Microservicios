@@ -1,21 +1,42 @@
-<form>
-  <label>Nombre del cliente: </label>
-  <input [value]="client.name"/>
+<form (ngSubmit)="saveClient()">
+  <label for="name">Nombre del cliente: </label>
+  <input type="text" id="name" [(ngModel)]="client.name" name="name"/>
   <br>
 
-  <label>Correo electronico: </label>
-  <input [value]="client.email">
+  <label for="email">Correo electronico: </label>
+  <input type="text" id="email" [(ngModel)]="client.email" name="email"/>
   <br>
 
-  <label>Numero de Telefono: </label>
-  <input [value]="client.phone">
+  <label for="phone">Numero de Telefono: </label>
+  <input type="text" id="phone" [(ngModel)]="client.phone" name="phone"/>
   <br>
 
-  <label>Compras</label>
-  <select>
-    @for (purchase of client.purchases; track purchase.idPurchase) {
-      <option>{{ purchase.idPurchase }}</option>
-    }
-  </select>
+  @if (this.client.idClient) {
+    <table>
+      <thead>
+        <tr>
+          <th>Id Compra</th>
+          <th>Cantidad</th>
+          <th>Productos</th>
+        </tr>
+      </thead>
+      <tbody>
+          @for (purchase of client.purchases;track purchase.idPurchase) {
+            <tr>
+              <td>{{ purchase.idPurchase }}</td>
+              <td> {{ purchase.quantity }}</td>
+              <td>
+                <ul *ngFor="let product of purchase.products">
+                  <li>{{ product.name }}</li>
+                </ul>
+              </td>
+            </tr>
+          }
+      </tbody>
+    </table>
+  }
+  <br>
+  <button type="submit">Guardar</button>
+  <button type="button" routerLink="/clients" >Regresar</button>
 
 </form>

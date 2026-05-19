@@ -1,1 +1,24 @@
-<p>purchase-form works!</p>
+<form (ngSubmit)="savePurchase()">
+  <label for="idClient">Id del cliente: </label>
+  <input type="number" id="idClient" [(ngModel)]="purchase.idClient" name="idClient"/>
+  <br>
+
+  <label for="purchases">Productos: </label>
+  <br>
+  @for (product of products; track product.id) {
+    <input
+      type="checkbox"
+      [id]="product.id"
+      [value]="product.name"
+      (change)="onCheckboxChange($event, product)"
+      [checked]="isProductSelected(product.id)"
+    />
+    <label for="idProduct">{{ product.id }} - {{ product.name }} - {{ product.stock }}</label>
+    <br>
+  }
+  <br>
+
+  <button type="submit">Guardar</button>
+  <button type="button" routerLink="/purchases">Regresar</button>
+
+</form>
