@@ -1,0 +1,244 @@
+/* =========================
+   CONTENEDOR PRINCIPAL DEL FORMULARIO
+   ========================= */
+form {
+  max-width: 720px;
+  margin: 32px auto;
+  padding: 32px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  font-family: Arial, sans-serif;
+}
+
+/* =========================
+   ETIQUETAS
+   ========================= */
+form label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+/* =========================
+   INPUTS Y SELECTS
+   ========================= */
+form input,
+form select {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  margin-bottom: 18px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #374151;
+  background-color: #ffffff;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* =========================
+   EFECTO AL ENFOCAR INPUT
+   ========================= */
+form input:focus,
+form select:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+/* =========================
+   CHECKBOXES (PURCHASE FORM)
+   ========================= */
+form input[type="checkbox"] {
+  width: auto;
+  margin-right: 8px;
+  margin-bottom: 10px;
+  transform: scale(1.05);
+  accent-color: #2563eb;
+}
+
+/* Label que acompaña a los checkboxes */
+form input[type="checkbox"] + label {
+  display: inline;
+  font-weight: 400;
+  color: #374151;
+}
+
+/* =========================
+   BOTÓN GUARDAR
+   ========================= */
+form button[type="submit"] {
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  margin-right: 10px;
+  box-shadow: 0 3px 8px rgba(37, 99, 235, 0.25);
+  transition: all 0.2s ease;
+}
+
+form button[type="submit"]:hover {
+  background-color: #1d4ed8;
+  transform: translateY(-1px);
+  box-shadow: 0 5px 12px rgba(37, 99, 235, 0.35);
+}
+
+/* =========================
+   BOTÓN REGRESAR
+   ========================= */
+form button[type="button"] {
+  background-color: #64748b;
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 3px 8px rgba(100, 116, 139, 0.25);
+  transition: all 0.2s ease;
+}
+
+form button[type="button"]:hover {
+  background-color: #475569;
+  transform: translateY(-1px);
+  box-shadow: 0 5px 12px rgba(100, 116, 139, 0.35);
+}
+
+/* =========================
+   TABLAS INTERNAS
+   (CLIENT FORM - COMPRAS)
+   ========================= */
+form table {
+  width: 100%;
+  margin: 24px 0;
+  border-collapse: collapse;
+  background-color: #f8fafc;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+form table thead {
+  background-color: #1e293b;
+  color: white;
+}
+
+form table th,
+form table td {
+  padding: 12px 14px;
+  text-align: left;
+  font-size: 14px;
+  border-bottom: 1px solid #e5e7eb;
+  vertical-align: top;
+}
+
+form table tbody tr:hover {
+  background-color: #eff6ff;
+}
+
+form table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* =========================
+   LISTAS DENTRO DE TABLAS
+   ========================= */
+form ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+form li {
+  margin-bottom: 4px;
+  color: #374151;
+}
+
+/* =========================
+   SALTO ENTRE SECCIONES
+   ========================= */
+form br {
+  display: none;
+}
+
+/* =========================
+   DISEÑO RESPONSIVO
+   ========================= */
+@media (max-width: 768px) {
+  form {
+    margin: 16px;
+    padding: 24px;
+  }
+
+  form button[type="submit"],
+  form button[type="button"] {
+    width: 100%;
+    margin-right: 0;
+    margin-bottom: 10px;
+  }
+}
+
+/* =========================
+   LISTA DE PRODUCTOS
+   (PURCHASE FORM)
+   ========================= */
+
+/* Contenedor general de la lista */
+.product-list {
+  margin: 8px 0 24px;
+  padding: 16px;
+  background-color: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+/* Cada producto */
+.product-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
+}
+
+/* Último elemento sin margen */
+.product-item:last-child {
+  margin-bottom: 0;
+}
+
+/* Hover sobre el producto */
+.product-item:hover {
+  background-color: #eff6ff;
+}
+
+/* Checkbox dentro de la lista */
+.product-item input[type="checkbox"] {
+  margin: 0;
+  flex-shrink: 0;
+}
+
+/* Texto del producto */
+.product-item label {
+  display: inline;
+  margin: 0;
+  font-size: 14px;
+  font-weight: 400;
+  color: #374151;
+  cursor: pointer;
+}
+
+/* Producto seleccionado */
+.product-item input[type="checkbox"]:checked + label {
+  font-weight: 600;
+  color: #2563eb;
+}

@@ -4,18 +4,22 @@
   <br>
 
   <label for="purchases">Productos: </label>
-  <br>
-  @for (product of products; track product.id) {
-    <input
-      type="checkbox"
-      [id]="product.id"
-      [value]="product.name"
-      (change)="onCheckboxChange($event, product)"
-      [checked]="isProductSelected(product.id)"
-    />
-    <label for="idProduct">{{ product.id }} - {{ product.name }} - {{ product.stock }}</label>
-    <br>
-  }
+  <div class="product-list">
+    @for (product of products; track product.id) {
+      <div class="product-item">
+        <input
+          type="checkbox"
+          [id]="product.id"
+          [value]="product.name"
+          (change)="onCheckboxChange($event, product)"
+          [checked]="isProductSelected(product.id)"
+        />
+        <label [for]="product.id">
+          {{ product.id }} - {{ product.name }} - Stock: {{ product.stock }}
+        </label>
+      </div>
+    }
+  </div>
   <br>
 
   <button type="submit">Guardar</button>
