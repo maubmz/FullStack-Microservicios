@@ -16,7 +16,7 @@ import {RouterLink} from '@angular/router';
 export class ProductListComponent implements OnInit{
   products: Product[] = [];
   title: string = "Listado de Productos";
-  listHeaders: string[] = ["Id", "Nombre", "Precio", "Stock", "Editar"];
+  listHeaders: string[] = ["Id", "Nombre", "Precio", "Stock", "Editar", "Eliminar"];
 
   constructor(private productService: ProductService) {}
 
@@ -25,6 +25,20 @@ export class ProductListComponent implements OnInit{
       next: (product: Product[]): Product[] => (this.products = product),
       }
     )
+  }
+
+  deleteProduct(product: Product): void {
+    const confirmed = confirm(
+      `Desea eliminar el producto "${product.name}" ?`
+    );
+
+    if (confirmed && product.id) {
+      this.productService.deleteProduct(product.id)
+        .subscribe(() => {
+          window.location.reload();
+          this.productService.getAllProducts().subscribe();
+        })
+    }
   }
 
 }

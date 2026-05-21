@@ -17,7 +17,10 @@
         <td>{{ client.phone }}</td>
         <td>{{ client.purchases.length }}</td>
         <td>
-          <button [routerLink]="['/clients/edit', client.idClient]">Editar</button>
+          <button class="editBtn" [routerLink]="['/clients/edit', client.idClient]">Editar</button>
+        </td>
+        <td>
+          <button class="delBtn" type="button" (click)="deleteClient(client)">Eliminar</button>
         </td>
       </tr>
     }

@@ -16,7 +16,7 @@ import {RouterLink} from '@angular/router';
 export class PurchaseListComponent implements OnInit {
   purchases: Purchase[] = [];
   title: string = "Listado de Compras";
-  listHeaders: string[] = ["Id", "Cliente", "Productos", "Cantidad", "Editar"];
+  listHeaders: string[] = ["Id", "Cliente", "Productos", "Cantidad", "Editar", "Eliminar"];
 
   constructor(private purchaseService: PurchaseService) {}
 
@@ -26,6 +26,21 @@ export class PurchaseListComponent implements OnInit {
         this.purchases=purchases
       }
     })
+  }
+
+  deletePurchase(purchase: Purchase): void {
+    const confirmed = confirm(
+      `Desea eliminar la siguiente compra del cliente "${purchase.clientName}"`
+    )
+
+    if (confirmed && purchase.idPurchase) {
+      this.purchaseService.deletePurchase(purchase.idPurchase)
+        .subscribe(() => {
+          window.location.reload();
+          this.purchaseService.getAllPurchases().subscribe();
+        });
+    }
+
   }
 
 }

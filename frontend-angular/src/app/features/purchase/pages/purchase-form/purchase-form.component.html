@@ -3,7 +3,7 @@
   <input type="number" id="idClient" [(ngModel)]="purchase.idClient" name="idClient"/>
   <br>
 
-  <label for="purchases">Productos: </label>
+  <label for="purchases">Productos:</label>
   <div class="product-list">
     @for (product of products; track product.id) {
       <div class="product-item">
