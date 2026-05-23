@@ -1,1 +1,23 @@
-<p>Hello from home page component</p>
+<div class="home-container">
+
+  <h1 class="home-title">Dashboard</h1>
+  <p class="home-subtitle">Resumen general del sistema</p>
+
+  <div class="dashboard-section">
+    <h2>Productos con menor stock</h2>
+
+    <ul class="stock-list">
+      @for (product of productsWithMinusStock; track $index) {
+        <div class="stock-card">
+          <li>
+            <div class="ranking">#{{ $index+1 }}</div>
+            <div class="product-id">Id producto: {{ product.id }}</div>
+            <div class="product-name">{{ product.name }}</div>
+            <div class="product-stock">Stock: {{ product.stock }}</div>
+          </li>
+        </div>
+      }
+    </ul>
+  </div>
+
+</div>

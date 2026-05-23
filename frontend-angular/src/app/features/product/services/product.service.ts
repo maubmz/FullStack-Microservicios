@@ -31,5 +31,9 @@ export class ProductService {
     return this.http.delete<Product>(`${this.apiUrl}/${id}`);
   }
 
+  getProductsWithMinusStock(): Observable<Product[]> {
+    return this.http.get<Product[]>(`${this.apiUrl}/minusStock`);
+  }
+
 
 }
