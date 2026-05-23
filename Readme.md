@@ -6,16 +6,16 @@ A full-stack application built with a **microservices architecture** using **Spr
 
 ## 📋 Table of Contents
 
-- [Architecture Overview](#architecture-overview)
-- [Tech Stack](#tech-stack)
-- [Project Structure](#project-structure)
-- [Microservice 1 — ms-products-api](#microservice-1--ms-products-api)
-- [Microservice 2 — ms-openfeign-client](#microservice-2--ms-openfeign-client)
-- [Frontend — frontend-angular](#frontend--frontend-angular)
-- [Database Schema](#database-schema)
-- [API Reference](#api-reference)
-- [Getting Started](#getting-started)
-- [Environment Variables](#environment-variables)
+- Architecture Overview
+- Tech Stack
+- Project Structure
+- Microservice 1 — ms-products-api
+- Microservice 2 — ms-openfeign-client
+- Frontend — frontend-angular
+- Database Schema
+- API Reference
+- Getting Started
+- Environment Variables
 
 ---
 
