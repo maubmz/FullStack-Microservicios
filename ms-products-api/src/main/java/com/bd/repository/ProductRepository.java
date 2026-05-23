@@ -17,6 +17,14 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
 
     void deleteById(Integer id);
 
+    List<Product> findTop10ByOrderByStockAsc();
+
+    // solucion con @Query para listar productos con menos stock
+    /*
+    @Query("SELECT p FROM Product p ORDER BY p.stock ASC")
+    List<Product> productsWithMinusStock(Pageable pageable);
+    */
+
     /*
     // Forma de llamar un metodo por medio de query
     @Modifying

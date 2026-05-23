@@ -44,6 +44,10 @@ public class ProductService {
         return product;
     }
 
+    public List<Product> productsWithMinusStock() {
+        return productRepository.findTop10ByOrderByStockAsc();
+    }
+
     public void decreaseStock(Product product) {
         if (product.getStock() <= 0) {
             throw new RuntimeException(
