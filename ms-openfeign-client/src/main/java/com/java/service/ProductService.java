@@ -35,4 +35,8 @@ public class ProductService {
         return productFeignClient.deleteProductById(id);
     }
 
+    public List<Product> getProductsByMinusStock() {
+        return productFeignClient.findProductsByMinusStock();
+    }
+
 }

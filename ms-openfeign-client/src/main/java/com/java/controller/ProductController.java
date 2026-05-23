@@ -41,4 +41,9 @@ public class ProductController {
         return productService.deletePRoductById(id);
     }
 
+    @GetMapping("/minusStock")
+    List<Product> findProductsByMinusStock() {
+        return productService.getProductsByMinusStock();
+    }
+
 }

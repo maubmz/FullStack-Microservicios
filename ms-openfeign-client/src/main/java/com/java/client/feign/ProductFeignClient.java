@@ -24,4 +24,8 @@ public interface ProductFeignClient {
     @DeleteMapping("/api/productos/{id}")
     Product deleteProductById(@PathVariable Integer id);
 
+    @GetMapping("/api/productos/minusStock")
+    List<Product> findProductsByMinusStock();
+
+
 }
