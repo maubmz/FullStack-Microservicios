@@ -1,494 +1,321 @@
-# 🛒 FullStack Microservicios — Clients, Products & Purchases
+# 🛒 FullStack Microservices — Clients, Products & Purchases
 
-A full-stack application built with a **microservices architecture** using **Spring Boot**, **Spring Cloud OpenFeign**, and **Angular 19**. It manages three core entities: **Clients**, **Products**, and **Purchases**, exposing a clean REST API and a reactive SPA frontend.
+Full-stack CRUD application built with **Spring Boot**, **Spring Cloud OpenFeign**, **Angular 19**, and **MySQL 8**. The project manages clients, products, and purchases through two backend services and a web frontend.
 
----
+## Contents
 
-## 📋 Table of Contents
+- [Architecture](#architecture)
+- [Technology stack](#technology-stack)
+- [Project structure](#project-structure)
+- [Backend services](#backend-services)
+- [Data model](#data-model)
+- [API reference](#api-reference)
+- [Getting started](#getting-started)
+- [Configuration](#configuration)
+- [Current implementation notes](#current-implementation-notes)
 
-- Architecture Overview
-- Tech Stack
-- Project Structure
-- Microservice 1 — ms-products-api
-- Microservice 2 — ms-openfeign-client
-- Frontend — frontend-angular
-- Database Schema
-- API Reference
-- Getting Started
-- Environment Variables
+## Architecture
 
----
-
-## 🏛️ Architecture Overview
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                     Angular 19 SPA                          │
-│              http://localhost:4200                           │
-│   (Client / Product / Purchase CRUD + Home dashboard)       │
-└───────────────────────┬─────────────────────────────────────┘
-                        │  HTTP (Angular HttpClient)
-                        ▼
-┌─────────────────────────────────────────────────────────────┐
-│              ms-openfeign-client  :8081                      │
-│   Spring Boot · Spring Cloud OpenFeign · CORS enabled       │
-│                                                              │
-│  /client/**   /product/**   /purchase/**                    │
-│  Service → FeignClient → delegates to ms-products-api       │
-└───────────────────────┬─────────────────────────────────────┘
-                        │  HTTP via OpenFeign (REST delegation)
-                        ▼
-┌─────────────────────────────────────────────────────────────┐
-│              ms-products-api  :8080                          │
-│   Spring Boot · Spring Data JPA · DTOs · MySQL Driver       │
-│                                                              │
-│  /api/clientes   /api/productos   /api/compras              │
-│  Controllers → Services (DTOs) → Repositories → MySQL       │
-└───────────────────────┬─────────────────────────────────────┘
-                        │  JDBC (MySQL Connector/J)
-                        ▼
-┌─────────────────────────────────────────────────────────────┐
-│              MySQL 8.0  :3306                                │
-│              Database: client_product                        │
-│   Tables: clients · products · purchases · purchase_products│
-└─────────────────────────────────────────────────────────────┘
+```text
+Angular SPA (:4200)
+        |
+        | HTTP
+        v
+ms-openfeign-client (:8081)
+        |
+        | OpenFeign
+        v
+ms-products-api (:8080)
+        |
+        | Spring Data JPA / JDBC
+        v
+MySQL (:3306)
 ```
 
-The communication flow is:
+Request flow:
 
-> **Angular** → **ms-openfeign-client** → **ms-products-api** → **MySQL**
+> **Angular → ms-openfeign-client → ms-products-api → MySQL**
 
-`ms-openfeign-client` acts as a **gateway/consumer**: it receives requests from the frontend, and transparently delegates them to `ms-products-api` using typed OpenFeign interfaces, avoiding any direct database access in this layer.
+- `frontend-angular` provides the user interface.
+- `ms-openfeign-client` exposes the endpoints consumed by Angular and delegates requests through OpenFeign. It does not access the database.
+- `ms-products-api` contains the business logic, JPA mappings, repositories, and database access.
+- MySQL stores clients, products, purchases, and purchase-product associations.
 
----
-
-## 🧰 Tech Stack
+## Technology stack
 
 | Layer | Technology | Version |
 |---|---|---|
-| **Backend Provider** | Spring Boot | 3.5.13 |
-| **Backend Consumer** | Spring Boot + Spring Cloud OpenFeign | 3.5.13 / 2025.0.0 |
-| **Frontend** | Angular | 19.2 |
-| **Database** | MySQL | 8.0 |
-| **ORM** | Spring Data JPA (Hibernate) | via Spring Boot |
-| **Language (backend)** | Java | 21 |
-| **Language (frontend)** | TypeScript | ~5.7 |
-| **Boilerplate reduction** | Lombok | latest |
-| **Containerization** | Docker / Docker Compose | - |
+| Provider backend | Spring Boot | 3.5.13 |
+| Consumer backend | Spring Boot | 3.5.13 |
+| Service communication | Spring Cloud OpenFeign | Spring Cloud 2025.0.0 |
+| Backend language | Java | 21 |
+| Persistence | Spring Data JPA / Hibernate | Managed by Spring Boot |
+| Database | MySQL | 8.0 |
+| Frontend | Angular | 19.2 |
+| Frontend language | TypeScript | 5.7 |
+| Containerization | Docker Compose | Compose specification |
 
----
+## Project structure
 
-## 📁 Project Structure
-
-```
-FullStack-Microservicios/
-├── ms-products-api/            # Microservice 1 — Provider (port 8080)
+```text
+fullstack-microservicios/
+├── ms-products-api/          # Provider service — port 8080
 │   └── src/main/java/com/bd/
-│       ├── config/             # JacksonConfig (Hibernate lazy-loading serialization)
-│       ├── controller/         # REST endpoints for clients, products, purchases
-│       ├── dto/                # ClientDTO, PurchaseDTO (data abstraction layer)
-│       ├── exception/          # GlobalExceptionHandler (@RestControllerAdvice)
-│       ├── model/              # JPA Entities: Client, Product, Purchase
-│       ├── repository/         # Spring Data JPA repositories with custom @Query
-│       └── service/            # Business logic + DTO conversion
-│
-├── ms-openfeign-client/        # Microservice 2 — Consumer / Gateway (port 8081)
+│       ├── config/           # Jackson configuration
+│       ├── controller/       # Provider REST controllers
+│       ├── dto/              # ClientDTO and PurchaseDTO
+│       ├── exception/        # Global REST exception handler
+│       ├── model/            # JPA entities
+│       ├── repository/       # Spring Data JPA repositories
+│       └── service/          # Business logic and DTO conversion
+├── ms-openfeign-client/      # Consumer service — port 8081
 │   └── src/main/java/com/java/
-│       ├── client/feign/       # OpenFeign interfaces (ClientFeignClient, etc.)
-│       ├── config/             # CorsConfig (allows http://localhost:4200)
-│       ├── controller/         # REST endpoints exposed to the frontend
-│       ├── model/              # Plain Java models (mirrors provider DTOs)
-│       └── service/            # Thin services that delegate to FeignClients
-│
-├── frontend-angular/           # Angular 19 SPA (port 4200)
+│       ├── client/feign/     # OpenFeign clients
+│       ├── config/           # CORS configuration
+│       ├── controller/       # Endpoints consumed by Angular
+│       ├── model/            # Models matching provider responses
+│       └── service/          # OpenFeign delegation layer
+├── frontend-angular/         # Angular SPA — port 4200
 │   └── src/app/
-│       ├── core/interceptors/  # httpErrorInterceptor (HTTP error handling)
-│       ├── features/
-│       │   ├── client/         # Client list + form pages, ClientService
-│       │   ├── product/        # Product list + form pages, ProductService
-│       │   ├── purchase/       # Purchase list + form pages, PurchaseService
-│       │   └── home/           # Home/dashboard page
-│       └── shared/
-│           ├── components/     # Navbar component
-│           └── interfaces/     # TypeScript models: Client, Product, Purchase
-│
-├── docker-compose.yml          # MySQL 8.0 container
-├── mysql_query.sql             # Database DDL (CREATE TABLE statements)
-├── .env.example                # Environment variable template
+│       ├── core/             # HTTP interceptor
+│       ├── features/         # Client, product, purchase, and home features
+│       └── shared/           # Navbar and TypeScript interfaces
+├── docker-compose.yml        # MySQL container definition
+├── mysql_query.sql           # Database and table creation script
+├── .env.example              # Docker environment template
 └── Readme.md
 ```
 
----
+## Backend services
 
-## 🟢 Microservice 1 — `ms-products-api`
+### `ms-products-api`
 
-**Role:** Provider. The only service with direct access to MySQL.
+Provider service available at `http://localhost:8080`.
 
-**Port:** `8080`
+Its main responsibilities are:
 
-### Package Structure
+- Persisting clients, products, and purchases with Spring Data JPA.
+- Returning `ClientDTO` and `PurchaseDTO` from the client and purchase APIs.
+- Returning `Product` entities directly from the product API.
+- Loading client and purchase associations with custom JPQL `JOIN FETCH` queries.
+- Decreasing product stock when a purchase is created.
+- Restoring previous stock before updating a purchase.
+- Restoring stock when a purchase is deleted.
+- Returning the ten products with the lowest stock.
 
-| Package | Responsibility |
-|---|---|
-| `model` | JPA entities mapped to MySQL tables (`Client`, `Product`, `Purchase`) |
-| `dto` | `ClientDTO` and `PurchaseDTO` — public API contracts, decouple internal entities from responses |
-| `repository` | Spring Data JPA interfaces with custom JPQL queries using `JOIN FETCH` to avoid N+1 |
-| `service` | Business logic, manual DTO-to-Entity and Entity-to-DTO conversion, stock management |
-| `controller` | REST controllers under `/api` prefix |
-| `exception` | `GlobalExceptionHandler` — maps exceptions to HTTP 404, 422, and 500 responses |
-| `config` | `JacksonConfig` — registers `Hibernate6Module` for proper lazy-load serialization |
+The service uses `GlobalExceptionHandler` to map runtime exceptions to `404`, unprocessable-entity exceptions to `422`, and unexpected exceptions to `500`.
 
-### Key Design Decisions
+### `ms-openfeign-client`
 
-- **DTOs for all responses:** `ClientDTO` and `PurchaseDTO` are returned by controllers instead of raw JPA entities, preventing circular reference issues and over-fetching.
-- **Stock management in `PurchaseService`:** When a purchase is created, each product's stock is decremented via `productService.decreaseStock()`. On update, old product stocks are restored before applying the new list. On delete, stocks are also restored.
-- **Custom JPQL with JOIN FETCH:** `ClientRepository` and `PurchaseRepository` use custom queries with `JOIN FETCH` to eagerly load associations within a single query, preventing Hibernate's lazy-loading problems.
-- **`@JsonIgnoreProperties`:** Used on bidirectional relationships (`Client ↔ Purchase`) to prevent infinite recursion during JSON serialization.
+Consumer service available at `http://localhost:8081`.
 
-### Entities & Relationships
+It exposes REST endpoints to Angular and delegates each operation to `ms-products-api` through these OpenFeign clients:
 
-```
-Client (1) ──────────────── (N) Purchase
-                                     │
-                         (N) ────────────────── (M) Product
-                         [via purchase_products join table]
-```
+- `ClientFeignClient`
+- `ProductFeignClient`
+- `PurchaseFeignClient`
 
-- A `Client` has **many** `Purchase` records (OneToMany)
-- A `Purchase` belongs to **one** `Client` (ManyToOne)
-- A `Purchase` holds **many** `Product` items (OneToMany via join table `purchase_products`)
-- `purchase_products` uses a `product_order` column as part of the PK to allow the same product to appear multiple times in a purchase
-
-### Configuration (`application.yml`)
-
-```yaml
-spring:
-  application:
-    name: ms-products-api
-  datasource:
-    url: ${DB_URL:jdbc:mysql://localhost:3306/client_product}
-    username: ${DB_USER:root}
-    password: ${MYSQL_ROOT_PASSWORD:yourpassword}
-server:
-  port: 8080
-```
-
----
-
-## 🔵 Microservice 2 — `ms-openfeign-client`
-
-**Role:** Consumer / Gateway. Receives frontend requests and delegates to `ms-products-api` via OpenFeign. Has no database access.
-
-**Port:** `8081`
-
-### Package Structure
-
-| Package | Responsibility |
-|---|---|
-| `client/feign` | OpenFeign declarative HTTP clients (`ClientFeignClient`, `ProductFeignClient`, `PurchaseFeignClient`) |
-| `model` | Plain Java models (Lombok `@Data`) matching the DTO shapes returned by the provider |
-| `service` | Thin delegation layer — calls the appropriate FeignClient method |
-| `controller` | REST endpoints exposed to Angular frontend |
-| `config` | `CorsConfig` — allows all HTTP methods from `http://localhost:4200` |
-
-### OpenFeign Pattern
-
-Each FeignClient interface is annotated with `@FeignClient(name = "...", url = "${microservicio.url}")`. The URL is resolved from `application.yml`:
+The provider URL is configured in `application.yml`:
 
 ```yaml
 microservicio:
   url: http://localhost:8080
 ```
 
-This makes it trivial to redirect the consumer to any other host without code changes.
+CORS accepts `GET`, `POST`, `PUT`, and `DELETE` requests from `http://localhost:4200`.
 
-The classic alternative (`RestTemplate`) is preserved as a comment in `ClientService` for educational reference.
+### `frontend-angular`
 
-### Exposed Endpoints
+Angular SPA available at `http://localhost:4200`.
 
-| Resource | Base Path |
-|---|---|
-| Clients | `/client/**` |
-| Products | `/product/**` |
-| Purchases | `/purchase/**` |
+It contains:
 
-### CORS
+- List and form pages for clients.
+- List and form pages for products.
+- List and form pages for purchases.
+- Product selection through checkboxes in the purchase form.
+- A shared navigation bar.
+- A functional HTTP error interceptor.
 
-Configured globally in `CorsConfig` to allow `GET`, `POST`, `PUT`, `DELETE` from `http://localhost:4200`.
-
----
-
-## 🟠 Frontend — `frontend-angular`
-
-**Role:** Single Page Application. Consumes `ms-openfeign-client` at port `8081`.
-
-**Port:** `4200`
-
-### Architecture Pattern
-
-The Angular app follows a **Feature-based module structure**:
-
-```
-features/
-  client/
-    pages/
-      client-list/     ← displays all clients
-      client-form/     ← create / edit form
-    services/
-      client.service.ts  ← HTTP calls to :8081/client
-  product/
-    pages/
-      product-list/
-      product-form/
-    services/
-      product.service.ts  ← HTTP calls to :8081/product
-  purchase/
-    pages/
-      purchase-list/
-      purchase-form/    ← checkbox-based product selection
-    services/
-      purchase.service.ts  ← HTTP calls to :8081/purchase
-  home/
-    pages/
-      home-page/
-shared/
-  components/
-    navbar/             ← global navigation bar
-  interfaces/
-    client.model.ts     ← TypeScript interface
-    product.model.ts
-    purchase.model.ts
-core/
-  interceptors/
-    http.interceptor.ts ← global HTTP error handler
-```
-
-### TypeScript Interfaces
+The frontend currently uses hard-coded local API URLs such as:
 
 ```typescript
-// Client
-interface Client {
-  idClient?: number;
-  name: string;
-  email: string;
-  phone: string;
-  purchases: Purchase[];
-}
-
-// Product
-interface Product {
-  id?: number;
-  name: string;
-  price: number;
-  stock: number;
-}
-
-// Purchase
-interface Purchase {
-  idPurchase?: number;
-  idClient: number;
-  clientName: string;
-  products: Product[];
-  quantity: number;
-}
+http://localhost:8081/client
+http://localhost:8081/product
+http://localhost:8081/purchase
 ```
 
-### Routing
+## Data model
 
-| Route | Component | Purpose |
-|---|---|---|
-| `/` | `HomePageComponent` | Dashboard / landing page |
-| `/clients` | `ClientListComponent` | List all clients |
-| `/clients/new` | `ClientFormComponent` | Create new client |
-| `/clients/edit/:id` | `ClientFormComponent` | Edit existing client |
-| `/products` | `ProductListComponent` | List all products |
-| `/products/new` | `ProductFormComponent` | Create new product |
-| `/products/edit/:id` | `ProductFormComponent` | Edit existing product |
-| `/purchases` | `PurchaseListComponent` | List all purchases |
-| `/purchases/new` | `PurchaseFormComponent` | Create new purchase |
-| `/purchases/edit/:id` | `PurchaseFormComponent` | Edit existing purchase |
-| `/**` | `HomePageComponent` | Wildcard redirect |
+```text
+Client (1) ─────────────── (N) Purchase
+                                  |
+                                  | @OneToMany + @JoinTable
+                                  v
+                              Product
+```
 
-### HTTP Interceptor
+- One client can have many purchases.
+- Each purchase belongs to one client.
+- `Purchase.products` is mapped as a unidirectional `@OneToMany` association through `purchase_products`.
+- `@OrderColumn(name = "product_order")` preserves product order and allows the same product to be included more than once in a purchase.
+- The service calculates `Purchase.quantity` from the number of selected products.
 
-A functional interceptor (`httpErrorInterceptor`) is registered globally via `app.config.ts`. It catches HTTP errors and logs/navigates accordingly:
+### Tables
 
-| Status | Action |
+| Table | Purpose |
 |---|---|
-| `400` | Logs Bad Request |
-| `401` | Logs and redirects to `/` |
-| `403` | Logs permission error |
-| `404` | Logs resource not found |
-| `500` | Logs server error |
+| `clients` | Client name, email, and phone number |
+| `products` | Product name, price, and stock |
+| `purchases` | Client reference and purchase quantity |
+| `purchase_products` | Products and their position within each purchase |
 
-### Purchase Form — Product Selection
+Database column names are in Spanish and are mapped to English Java fields with JPA annotations:
 
-The `PurchaseFormComponent` loads all available products and renders them as checkboxes. When a checkbox is toggled, the product is added or removed from `purchase.products[]`. On submit, the full purchase object (including the `products` array) is sent to the backend.
+| Database column | Java field |
+|---|---|
+| `nombre` | `name` |
+| `telefono` | `phoneNumber` |
+| `precio` | `price` |
+| `cantidad` | `quantity` |
 
----
+## API reference
 
-## 🗄️ Database Schema
+### Provider: `ms-products-api`
 
-> DDL is provided in [`mysql_query.sql`](./mysql_query.sql).
+Base URL: `http://localhost:8080`
 
-```sql
--- Clients
-CREATE TABLE clients (
-    id       BIGINT AUTO_INCREMENT PRIMARY KEY,
-    nombre   VARCHAR(40) NOT NULL,   -- mapped to: name
-    email    VARCHAR(40) NOT NULL,
-    telefono VARCHAR(40) NOT NULL    -- mapped to: phoneNumber
-);
-
--- Products
-CREATE TABLE products (
-    id     BIGINT AUTO_INCREMENT PRIMARY KEY,
-    nombre VARCHAR(40)    NOT NULL,  -- mapped to: name
-    precio DECIMAL        NOT NULL,  -- mapped to: price
-    stock  INT            NOT NULL
-);
-
--- Purchases
-CREATE TABLE purchases (
-    id        BIGINT AUTO_INCREMENT PRIMARY KEY,
-    client_id BIGINT NOT NULL,
-    cantidad  INT    NOT NULL,        -- mapped to: quantity
-    FOREIGN KEY (client_id) REFERENCES clients(id)
-);
-
--- Many-to-Many: Purchase ↔ Product
-CREATE TABLE purchase_products (
-    purchase_id   BIGINT NOT NULL,
-    product_id    BIGINT NOT NULL,
-    product_order INT    NOT NULL DEFAULT 0,  -- allows duplicate products
-    PRIMARY KEY (purchase_id, product_order),
-    FOREIGN KEY (purchase_id) REFERENCES purchases(id),
-    FOREIGN KEY (product_id)  REFERENCES products(id)
-);
-```
-
-> **Note:** Column names in the DB are in Spanish (`nombre`, `telefono`, `precio`, `cantidad`). JPA `@Column(name = "...")` annotations map them to English Java field names.
-
----
-
-## 📡 API Reference
-
-### `ms-products-api` — Base URL: `http://localhost:8080`
-
-#### Clients `/api/clientes`
+#### Clients
 
 | Method | Endpoint | Description |
 |---|---|---|
-| `GET` | `/api/clientes` | Get all clients (with purchases) |
-| `GET` | `/api/clientes/{id}` | Get client by ID |
-| `POST` | `/api/clientes` | Create a new client |
-| `PUT` | `/api/clientes/{id}` | Update an existing client |
-| `DELETE` | `/api/clientes/{id}` | Delete a client by ID |
+| `GET` | `/api/clientes` | List all clients |
+| `GET` | `/api/clientes/{id}` | Get a client by ID |
+| `POST` | `/api/clientes` | Create a client |
+| `PUT` | `/api/clientes/{id}` | Update a client |
+| `DELETE` | `/api/clientes/{id}` | Delete a client |
 
-#### Products `/api/productos`
-
-| Method | Endpoint | Description |
-|---|---|---|
-| `GET` | `/api/productos` | Get all products |
-| `GET` | `/api/productos/{id}` | Get product by ID |
-| `POST` | `/api/productos` | Create a new product |
-| `PUT` | `/api/productos/{id}` | Update an existing product |
-| `DELETE` | `/api/productos/{id}` | Delete a product by ID |
-| `GET` | `/api/productos/minusStock` | Get top 10 products with lowest stock |
-
-#### Purchases `/api/compras`
+#### Products
 
 | Method | Endpoint | Description |
 |---|---|---|
-| `GET` | `/api/compras` | Get all purchases |
-| `GET` | `/api/compras/{id}` | Get purchase by ID |
-| `POST` | `/api/compras` | Create a purchase (decrements stock) |
-| `PUT` | `/api/compras/{id}` | Update a purchase (restores then decrements stock) |
-| `DELETE` | `/api/compras/{id}` | Delete a purchase (restores stock) |
+| `GET` | `/api/productos` | List all products |
+| `GET` | `/api/productos/{id}` | Get a product by ID |
+| `POST` | `/api/productos` | Create a product |
+| `PUT` | `/api/productos/{id}` | Update a product |
+| `DELETE` | `/api/productos/{id}` | Delete a product |
+| `GET` | `/api/productos/minusStock` | Get up to ten products ordered by stock ascending |
 
----
-
-### `ms-openfeign-client` — Base URL: `http://localhost:8081`
-
-#### Clients `/client`
+#### Purchases
 
 | Method | Endpoint | Description |
 |---|---|---|
-| `GET` | `/client/allClients` | Get all clients |
-| `GET` | `/client/{id}` | Get client by ID |
-| `POST` | `/client/create` | Create client |
-| `PUT` | `/client/update/{id}` | Update client |
-| `DELETE` | `/client/delete/{id}` | Delete client |
+| `GET` | `/api/compras` | List all purchases |
+| `GET` | `/api/compras/{id}` | Get a purchase by ID |
+| `POST` | `/api/compras` | Create a purchase and decrease stock |
+| `PUT` | `/api/compras/{id}` | Update a purchase and recalculate stock |
+| `DELETE` | `/api/compras/{id}` | Delete a purchase and restore stock |
 
-#### Products `/product`
+### Consumer: `ms-openfeign-client`
 
-| Method | Endpoint | Description |
-|---|---|---|
-| `GET` | `/product/allProducts` | Get all products |
-| `GET` | `/product/{id}` | Get product by ID |
-| `POST` | `/product/create` | Create product |
-| `PUT` | `/product/update/{id}` | Update product |
-| `DELETE` | `/product/delete/{id}` | Delete product |
-| `GET` | `/product/minusStock` | Products with lowest stock |
+Base URL: `http://localhost:8081`
 
-#### Purchases `/purchase`
+#### Clients
 
 | Method | Endpoint | Description |
 |---|---|---|
-| `GET` | `/purchase/allPurchases` | Get all purchases |
-| `GET` | `/purchase/{id}` | Get purchase by ID |
-| `POST` | `/purchase/create` | Create purchase |
-| `PUT` | `/purchase/update/{id}` | Update purchase |
-| `DELETE` | `/purchase/delete/{id}` | Delete purchase |
+| `GET` | `/client/allClients` | List all clients |
+| `GET` | `/client/{id}` | Get a client by ID |
+| `POST` | `/client/create` | Create a client |
+| `PUT` | `/client/update/{id}` | Update a client |
+| `DELETE` | `/client/delete/{id}` | Delete a client |
 
----
+#### Products
 
-## 🚀 Getting Started
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/product/allProducts` | List all products |
+| `GET` | `/product/{id}` | Get a product by ID |
+| `POST` | `/product/create` | Create a product |
+| `PUT` | `/product/update/{id}` | Update a product |
+| `DELETE` | `/product/delete/{id}` | Delete a product |
+| `GET` | `/product/minusStock` | Get products with the lowest stock |
+
+#### Purchases
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/purchase/allPurchases` | List all purchases |
+| `GET` | `/purchase/{id}` | Get a purchase by ID |
+| `POST` | `/purchase/create` | Create a purchase |
+| `PUT` | `/purchase/update/{id}` | Update a purchase |
+| `DELETE` | `/purchase/delete/{id}` | Delete a purchase |
+
+## Getting started
 
 ### Prerequisites
 
-- Java 21+
-- Maven 3.8+
-- Node.js 18+ & npm
-- Docker & Docker Compose
+- Java 21
+- Maven 3.8 or newer
+- A Node.js version compatible with Angular 19
+- npm
+- Docker and Docker Compose
 
----
+### 1. Configure MySQL
 
-### 1. Start MySQL with Docker
+Copy the environment template:
 
 ```bash
-# Copy and configure environment variables
 cp .env.example .env
-
-# Start MySQL container
-docker-compose up -d
 ```
 
----
-
-### 2. Run `ms-products-api` (Provider)
+Set a secure root password in `.env`, then start MySQL:
 
 ```bash
-cd ms-products-api
-./mvnw spring-boot:run
+docker compose up -d
 ```
 
-The API will be available at `http://localhost:8080`.
+The Compose file creates the database configured by `MYSQL_DATABASE`, but it does **not** automatically execute `mysql_query.sql`. Initialize the tables with:
 
----
+```bash
+docker compose exec -T mysql sh -c 'mysql --force -uroot -p"$MYSQL_ROOT_PASSWORD"' < mysql_query.sql
+```
 
-### 3. Run `ms-openfeign-client` (Consumer)
+The `--force` option lets the script continue if `client_product` was already created by the container.
+
+### 2. Start the provider service
+
+The `.env` file is read by Docker Compose, but it is not automatically loaded into a separately started Spring Boot process. Export the same password before starting the provider:
+
+```bash
+export MYSQL_ROOT_PASSWORD='your_password_here'
+cd ms-products-api
+mvn spring-boot:run
+```
+
+The provider will be available at `http://localhost:8080`.
+
+Optional datasource variables:
+
+```bash
+export DB_URL='jdbc:mysql://localhost:3306/client_product'
+export DB_USER='root'
+```
+
+### 3. Start the consumer service
+
+From another terminal:
 
 ```bash
 cd ms-openfeign-client
-./mvnw spring-boot:run
+mvn spring-boot:run
 ```
 
-The consumer gateway will be available at `http://localhost:8081`.
+The consumer will be available at `http://localhost:8081`.
 
----
+### 4. Start the frontend
 
-### 4. Run the Angular Frontend
+From another terminal:
 
 ```bash
 cd frontend-angular
@@ -496,26 +323,36 @@ npm install
 npm start
 ```
 
-Open your browser at `http://localhost:4200`.
+Open `http://localhost:4200`.
 
----
+## Configuration
 
-## ⚙️ Environment Variables
+### Docker environment variables
 
-Create a `.env` file in the root directory based on `.env.example`:
+| Variable | Description | Example |
+|---|---|---|
+| `MYSQL_ROOT_PASSWORD` | MySQL root password | `change_me` |
+| `MYSQL_DATABASE` | Database created by the MySQL container | `client_product` |
+| `CONTAINER_NAME` | MySQL container name | `bd-openfeign` |
 
-```env
-MYSQL_ROOT_PASSWORD=your_password_here
-MYSQL_DATABASE=client_product
-CONTAINER_NAME=bd-openfeign
-```
+### Provider environment variables
 
-These are consumed by `docker-compose.yml` to configure the MySQL container.
+| Variable | Description | Default in the current code |
+|---|---|---|
+| `DB_URL` | JDBC connection URL | `jdbc:mysql://localhost:3306/client_product` |
+| `DB_USER` | Database username | `root` |
+| `MYSQL_ROOT_PASSWORD` | Database password | Value currently defined in `application.yml` |
 
-For `ms-products-api`, the datasource password can also be overridden with the `MYSQL_ROOT_PASSWORD` environment variable (see `application.yml`).
+For a public or production repository, remove the password default from `application.yml` and require `MYSQL_ROOT_PASSWORD` to be supplied externally.
 
----
+## Current implementation notes
 
-## 👨‍💻 Author
+- `frontend-angular/src/app/features/product/services/product.service.ts` currently sends product deletion to `/product/{id}`, while `ms-openfeign-client` exposes `DELETE /product/delete/{id}`. These paths must be aligned for deletion from the frontend to work.
+- `frontend-angular/package.json` declares Angular packages at `19.2.x` but `@angular/cli` at `21.2.10`. Keep the CLI major version aligned with Angular 19 to avoid tooling incompatibilities.
+- The repository contains Maven wrapper configuration files under `.mvn`, but the provided tree does not include `mvnw` or `mvnw.cmd`; the startup instructions therefore use the installed `mvn` command.
+- The current backend test suites only contain context-loading tests.
+- `application-local.yml` and the default value in `application.yml` contain a database password. Replace committed credentials with environment variables before publishing or deploying the project.
+
+## Author
 
 **maubmz** — [GitHub](https://github.com/maubmz)
